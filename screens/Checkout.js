@@ -5,6 +5,7 @@ import { BASE_URL } from "../ApiActions";
 import Icon from "react-native-vector-icons/Ionicons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createOrder } from "../ApiActions";
+import SunmiPrinter from "@heasy/react-native-sunmi-printer";
 
 
 const Checkout = ({ navigation }) => {
@@ -30,29 +31,63 @@ const Checkout = ({ navigation }) => {
         return true;
     };
 
+    const printReceipt = async (orderData) => {
+        try {
+          SunmiPrinter.printerInit();
+    
+          // Print header
+          SunmiPrinter.setAlignment(1);
+          SunmiPrinter.printerText("***** RECEIPT *****\n");
+          SunmiPrinter.setAlignment(0);
+    
+          // Print buyer details
+          SunmiPrinter.printerText(`Buyer: ${orderData.buyer}\n`);
+          SunmiPrinter.printerText(`Email: ${orderData.buyer_email}\n`);
+          SunmiPrinter.printerText(`Phone: ${orderData.buyer_phone}\n`);
+          SunmiPrinter.printerText(`Ordered At: ${orderData.ordered_at}\n\n`);
+    
+          // Print courses
+          SunmiPrinter.printerText("Courses:\n");
+          orderData.courses.forEach((course, index) => {
+            SunmiPrinter.printerText(`${index + 1}. ${course}\n`);
+          });
+    
+          // Print total
+          SunmiPrinter.setAlignment(2);
+          SunmiPrinter.printerText(`\nTotal: ₹${orderData.total_price}\n\n`);
+          SunmiPrinter.setAlignment(1);
+          SunmiPrinter.printerText("************************\n");
+
+        //   SunmiPrinter.lineWrap(3);
+        //   SunmiPrinter.cutPaper();
+          ToastAndroid.show("Receipt Printed", ToastAndroid.SHORT);
+        } catch (error) {
+          console.log("Printing error:", error);
+          ToastAndroid.show("Error Printing Receipt", ToastAndroid.SHORT);
+        }
+    };
+
     const handleCheckout = async () => {
         if (validateInputs()) {
             setLoading(true);
-            const mac_address = await AsyncStorage.getItem("mac_address");
-            const cartItemsData = Object.entries(cart).map(([id, details]) => ({
-                [id]: details.quantity
-            }));
+            const android_id = await AsyncStorage.getItem("android_id");
+            const cartItemsData = Object.keys(cart);
             const orderData = {
-                device: mac_address,
+                device: android_id,
                 courses: cartItemsData,
                 buyer: name,
                 buyer_email: email,
                 buyer_phone: phone,
             };
             const result = await createOrder(orderData);
-            console.log('Result:', result);
             if (result[0] === 201) {
-                console.log('orderData:', result[1]);
                 setCart({});
                 setName("");
                 setEmail("");
                 setPhone("");
-                ToastAndroid.show("Order created Successful!", ToastAndroid.SHORT);
+                ToastAndroid.show("Order created Successful.", ToastAndroid.SHORT);
+                await printReceipt(result[1]);
+                setLoading(false);
                 navigation.navigate('Home');
             }
             else{
@@ -67,7 +102,6 @@ const Checkout = ({ navigation }) => {
         title: details.title,
         price: details.price,
         image: details.image,
-        quantity: details.quantity,
     }));
 
     return (
@@ -84,12 +118,12 @@ const Checkout = ({ navigation }) => {
                     keyExtractor={(item) => item.id.toString()}
                     renderItem={({ item }) => (
                         <View style={styles.card}>
-                            <Image source={{ uri: BASE_URL + item.image }} style={styles.courseImage} />
+                            <Image source={item.image ? { uri: BASE_URL + item.image } : require('../assets/dummy-course.jpg')} style={styles.courseImage} />
                             <View style={styles.info}>
                                 <Text style={styles.title}>
                                     {item.title.length > 40 ? item.title.substring(0, 40) + "..." : item.title}
                                 </Text>
-                                <Text style={styles.quantity}>Quantity: {item.quantity}</Text>
+                                <Text style={styles.price}>Price: ${item.price}</Text>
                             </View>
                         </View>
                     )}
@@ -120,7 +154,7 @@ const Checkout = ({ navigation }) => {
 
             <View style={styles.summaryContainer}>
                 <Text style={styles.summaryText}>Total Courses: {cartItems.length}</Text>
-                <Text style={styles.summaryText}>Total Amount: ${cartItems.reduce((total, item) => total + item.quantity * item.price, 0).toFixed(2)}</Text>
+                <Text style={styles.summaryText}>Total Amount: ${cartItems.reduce((total, item) => total + item.price, 0).toFixed(2)}</Text>
             </View>
 
             <TouchableOpacity style={styles.checkoutButton} onPress={handleCheckout}>
@@ -164,7 +198,7 @@ const styles = StyleSheet.create({
         marginVertical: 10,
     },
     cartContainer: {
-        maxHeight: '50%',
+        maxHeight: '40%',
         marginBottom: 15,
     },
     card: {
@@ -192,9 +226,11 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
         color: "#333",
     },
-    quantity: {
-        fontSize: 14,
-        color: "#555",
+    price: {
+        fontSize: 16,
+        fontWeight: "bold",
+        color: "#27ae60",
+        marginVertical: 5,
     },
     input: {
         width: "100%",

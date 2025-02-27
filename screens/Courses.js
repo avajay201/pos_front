@@ -4,7 +4,6 @@ import { courses as fetchCourses, BASE_URL } from "../ApiActions";
 import Icon from "react-native-vector-icons/Ionicons";
 import { MainContext } from "../MyContext";
 
-
 const Courses = ({ navigation, route }) => {
   const { teacher } = route.params;
   const { cart, setCart } = useContext(MainContext);
@@ -46,7 +45,6 @@ const Courses = ({ navigation, route }) => {
     setCart((prevCart) => ({
       ...prevCart,
       [course.id]: {
-        quantity: (prevCart[course.id]?.quantity || 0) + 1,
         title: course.title,
         image: course.profile_pic,
         price: parseFloat(course.price),
@@ -54,30 +52,11 @@ const Courses = ({ navigation, route }) => {
     }));
   };
 
-  const increaseQuantity = (courseId) => {
-    setCart((prevCart) => ({
-      ...prevCart,
-      [courseId]: {
-        ...prevCart[courseId],
-        quantity: prevCart[courseId].quantity + 1,
-      },
-    }));
-  };
-
-  const decreaseQuantity = (courseId) => {
+  const removeFromCart = (courseId) => {
     setCart((prevCart) => {
-      if (prevCart[courseId].quantity === 1) {
-        const newCart = { ...prevCart };
-        delete newCart[courseId];
-        return newCart;
-      }
-      return {
-        ...prevCart,
-        [courseId]: {
-          ...prevCart[courseId],
-          quantity: prevCart[courseId].quantity - 1,
-        },
-      };
+      const newCart = { ...prevCart };
+      delete newCart[courseId];
+      return newCart;
     });
   };
 
@@ -106,7 +85,7 @@ const Courses = ({ navigation, route }) => {
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={["#3498db"]} />}
           renderItem={({ item }) => (
             <View style={styles.card}>
-              <Image source={{ uri: BASE_URL + item.profile_pic }} style={styles.courseImage} />
+              <Image source={item.profile_pic ? { uri: BASE_URL + item.profile_pic } : require('../assets/dummy-course.jpg')} style={styles.courseImage} />
               <View style={styles.info}>
                 <Text style={styles.title}>{item.title.length > 40 ? item.title.substring(0, 40) + "..." : item.title}</Text>
                 <Text style={styles.description}>{item.description}</Text>
@@ -114,14 +93,9 @@ const Courses = ({ navigation, route }) => {
 
                 {cart[item.id] ? (
                   <View style={styles.cartActions}>
-                    <TouchableOpacity onPress={() => decreaseQuantity(item.id)} style={styles.cartButton}>
-                      <Icon name="remove" size={20} color="white" />
+                    <TouchableOpacity onPress={() => removeFromCart(item.id)} style={styles.cartButton}>
+                      <Icon name="trash" size={20} color="white" />
                     </TouchableOpacity>
-                    <Text style={styles.quantity}>{cart[item.id].quantity}</Text>
-                    <TouchableOpacity onPress={() => increaseQuantity(item.id)} style={styles.cartButton}>
-                      <Icon name="add" size={20} color="white" />
-                    </TouchableOpacity>
-
                     <TouchableOpacity
                       style={styles.goToCartButton}
                       onPress={() => navigation.navigate("Cart")}
