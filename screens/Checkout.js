@@ -1,5 +1,5 @@
 import React, { useContext, useState } from "react";
-import { View, Text, FlatList, TextInput, TouchableOpacity, StyleSheet, Image, ToastAndroid, ActivityIndicator, Modal } from "react-native";
+import { View, Text, FlatList, TextInput, TouchableOpacity, StyleSheet, Image, ToastAndroid, ActivityIndicator, Modal, ScrollView } from "react-native";
 import { MainContext } from "../MyContext";
 import { BASE_URL } from "../ApiActions";
 import Icon from "react-native-vector-icons/Ionicons";
@@ -71,30 +71,28 @@ const Checkout = ({ navigation }) => {
     }));
 
     return (
-        <View style={styles.container}>
+        <ScrollView contentContainerStyle={styles.container}>
             <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
                 <Icon name="arrow-back" size={24} color="black" />
             </TouchableOpacity>
             <Text style={styles.heading}>Checkout</Text>
 
             <Text style={styles.subHeading}>Cart Summary</Text>
-            <View style={styles.cartContainer}>
-                <FlatList
-                    data={cartItems}
-                    keyExtractor={(item) => item.id.toString()}
-                    renderItem={({ item }) => (
-                        <View style={styles.card}>
-                            <Image source={{ uri: BASE_URL + item.image }} style={styles.courseImage} />
+            {
+                cartItems.map((item, index)=>{
+                    return(
+                        <View style={styles.card} key={index}>
+                            <Image source={item.image ? { uri: BASE_URL + item.image } : require('../assets/dummy-course.jpg')} style={styles.courseImage} />
                             <View style={styles.info}>
                                 <Text style={styles.title}>
                                     {item.title.length > 40 ? item.title.substring(0, 40) + "..." : item.title}
                                 </Text>
-                                <Text style={styles.quantity}>Quantity: {item.quantity}</Text>
+                                <Text style={styles.price}>Price: ${item.price}</Text>
                             </View>
                         </View>
-                    )}
-                />
-            </View>
+                    )
+                })
+            }
 
             <Text style={styles.subHeading}>Buyer Details</Text>
             <TextInput
@@ -131,7 +129,7 @@ const Checkout = ({ navigation }) => {
                     <ActivityIndicator size="large" color="#B94EA0" />
                 </View>
             </Modal>
-        </View>
+        </ScrollView>
 
     );
 };
@@ -162,10 +160,6 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: "bold",
         marginVertical: 10,
-    },
-    cartContainer: {
-        maxHeight: '50%',
-        marginBottom: 15,
     },
     card: {
         flexDirection: "row",
