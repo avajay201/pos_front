@@ -1,9 +1,10 @@
 import React, { useEffect, useState, useContext } from "react";
-import { View, Text, FlatList, Image, TouchableOpacity, ActivityIndicator, StyleSheet, ToastAndroid, RefreshControl } from "react-native";
+import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, StyleSheet, ToastAndroid, RefreshControl } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { subjects as fetchSubjects, BASE_URL } from "../ApiActions";
+import { subjects as fetchSubjects } from "../ApiActions";
 import Icon from "react-native-vector-icons/Ionicons";
 import { MainContext } from "../MyContext";
+import { Picker } from "@react-native-picker/picker";
 
 
 const Home = () => {
@@ -11,7 +12,7 @@ const Home = () => {
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
     const navigation = useNavigation();
-    const { cart } = useContext(MainContext);
+    const { cart, languages, language, setLanguage } = useContext(MainContext);
 
     const getSubjects = async () => {
         try {
@@ -50,6 +51,17 @@ const Home = () => {
         <View style={styles.container}>
             <View style={styles.header}>
                 <Text style={styles.heading}>Subjects</Text>
+                <View style={styles.pickerContainer}>
+                    <Picker
+                        selectedValue={language}
+                        style={styles.picker}
+                        onValueChange={(itemValue) => setLanguage(itemValue)}
+                    >
+                        {languages.map((lang, index) => (
+                            <Picker.Item key={index} label={lang} value={lang} />
+                        ))}
+                    </Picker>
+                </View>
                 <TouchableOpacity onPress={() => navigation.navigate("Cart")} style={styles.cartButton}>
                     <Icon name="cart" size={28} color="black" />
                     {Object.keys(cart).length > 0 && (
@@ -71,9 +83,12 @@ const Home = () => {
             <FlatList
                 data={subjects}
                 keyExtractor={(item) => item.id.toString()}
-                renderItem={({ item }) => (
+                renderItem={({ item, index }) => (
                     <TouchableOpacity
-                        style={styles.card}
+                        style={[
+                            styles.card,
+                            { backgroundColor: index % 2 === 0 ? "#f0f0f0" : "#d9e6f2" }
+                        ]}
                         onPress={() => navigation.navigate("Teachers", { s_id: item.id })}
                     >
                         <Text style={{fontSize: 18, fontWeight: 'bold'}}>{item.name}</Text>
@@ -109,6 +124,23 @@ const styles = StyleSheet.create({
     heading: {
         fontWeight: 'bold',
         fontSize: 30,
+    },
+    pickerContainer: {
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: 150,
+        height: 40,
+        backgroundColor: "#fff",
+        borderRadius: 10,
+        borderWidth: 1,
+        borderColor: "#ccc",
+        overflow: "hidden",
+    },
+    picker: {
+        height: 40,
+        width: "100%",
+        color: "black",
     },
     cartButton: {
         position: "relative",

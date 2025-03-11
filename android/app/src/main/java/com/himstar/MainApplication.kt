@@ -1,4 +1,4 @@
-package com.pos
+package com.iraqacademy
 
 import android.app.Application
 import com.facebook.react.PackageList

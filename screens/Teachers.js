@@ -12,7 +12,7 @@ const Teachers = ({ route }) => {
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
     const navigation = useNavigation();
-    const { cart } = useContext(MainContext);
+    const { cart, language } = useContext(MainContext);
 
     const getTeachers = async () => {
         try {
@@ -50,28 +50,28 @@ const Teachers = ({ route }) => {
     return (
         <View style={styles.container}>
             <View style={styles.header}>
-    <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-        <Icon name="arrow-back" size={24} color="black" />
-    </TouchableOpacity>
+                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+                    <Icon name="arrow-back" size={24} color="black" />
+                </TouchableOpacity>
 
-    <View style={styles.headerTitle}>
-        <Text style={styles.heading}>Teachers</Text>
-    </View>
+                <View style={styles.headerTitle}>
+                    <Text style={styles.heading}>Teachers</Text>
+                </View>
 
-    <TouchableOpacity onPress={() => navigation.navigate("Cart")} style={styles.cartButton}>
-        <Icon name="cart" size={28} color="black" />
-        {Object.keys(cart).length > 0 && (
-            <View style={styles.cartBadge}>
-                <Text style={styles.cartBadgeText}>{Object.keys(cart).length}</Text>
+                <TouchableOpacity onPress={() => navigation.navigate("Cart")} style={styles.cartButton}>
+                    <Icon name="cart" size={28} color="black" />
+                    {Object.keys(cart).length > 0 && (
+                        <View style={styles.cartBadge}>
+                            <Text style={styles.cartBadgeText}>{Object.keys(cart).length}</Text>
+                        </View>
+                    )}
+                </TouchableOpacity>
             </View>
-        )}
-    </TouchableOpacity>
-</View>
 
 
             {
                 teachers.length === 0 && (
-                    <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+                    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
                         <Text>No teachers available</Text>
                     </View>
                 )
@@ -80,14 +80,17 @@ const Teachers = ({ route }) => {
             <FlatList
                 data={teachers}
                 keyExtractor={(item) => item.id.toString()}
-                renderItem={({ item }) => (
+                renderItem={({ item, index }) => (
                     <TouchableOpacity
-                        style={styles.card}
+                        style={[
+                            styles.card,
+                            { backgroundColor: index % 2 === 0 ? "#f0f0f0" : "#d9e6f2" }
+                        ]}
                         onPress={() => navigation.navigate("Courses", { teacher: item.id })}
                     >
                         <Image source={item.profile_pic ? { uri: BASE_URL + item.profile_pic } : require('../assets/dummy-profile.jpg')} style={styles.profilePic} />
                         <View style={styles.info}>
-                            <Text style={styles.name}>{item.name}|{item.profile_pic}</Text>
+                            <Text style={styles.name}>{item.name}</Text>
                             <Text style={styles.email}>{item.email}</Text>
                             <Text style={styles.phone}>{item.phone}</Text>
                         </View>
@@ -136,7 +139,7 @@ const styles = StyleSheet.create({
         shadowColor: "#000",
         shadowOpacity: 0.1,
         shadowRadius: 5,
-    },    
+    },
     cartButton: {
         position: "relative",
         padding: 5,

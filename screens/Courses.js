@@ -6,7 +6,7 @@ import { MainContext } from "../MyContext";
 
 const Courses = ({ navigation, route }) => {
   const { teacher } = route.params;
-  const { cart, setCart } = useContext(MainContext);
+  const { cart, setCart, language } = useContext(MainContext);
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -83,8 +83,12 @@ const Courses = ({ navigation, route }) => {
           data={courses}
           keyExtractor={(item) => item.id.toString()}
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={["#3498db"]} />}
-          renderItem={({ item }) => (
-            <View style={styles.card}>
+          renderItem={({ item, index }) => (
+            <View 
+              style={[
+                styles.card,
+                { backgroundColor: index % 2 === 0 ? "#f0f0f0" : "#d9e6f2" }
+            ]}>
               <Image source={item.profile_pic ? { uri: BASE_URL + item.profile_pic } : require('../assets/dummy-course.jpg')} style={styles.courseImage} />
               <View style={styles.info}>
                 <Text style={styles.title}>{item.title.length > 40 ? item.title.substring(0, 40) + "..." : item.title}</Text>

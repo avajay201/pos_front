@@ -47,8 +47,12 @@ const Cart = ({ navigation }) => {
       <FlatList
         data={cartItems}
         keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => (
-          <View style={styles.card}>
+        renderItem={({ item, index }) => (
+          <View 
+            style={[
+              styles.card,
+              { backgroundColor: index % 2 === 0 ? "#f0f0f0" : "#d9e6f2" }
+          ]}>
             <Image source={item.image ? { uri: BASE_URL + item.image } : require('../assets/dummy-course.jpg')} style={styles.courseImage} />
             <View style={styles.info}>
               <Text style={styles.title}>{item.title.length > 40 ? item.title.substring(0, 40) + "..." : item.title}</Text> 

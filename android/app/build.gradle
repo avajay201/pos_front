@@ -74,9 +74,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace "com.pos"
+    namespace "com.iraqacademy"
     defaultConfig {
-        applicationId "com.pos"
+        applicationId "com.iraqacademy"
         minSdkVersion 24
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
