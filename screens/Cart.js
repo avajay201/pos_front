@@ -8,7 +8,7 @@ import Icon from "react-native-vector-icons/Ionicons";
 import { MainContext } from "../MyContext";
 
 const Cart = ({ navigation }) => {
-  const { cart, setCart } = useContext(MainContext);
+  const { cart, setCart, languageData, language } = useContext(MainContext);
 
   const removeItem = (courseId) => {
     setCart((prevCart) => {
@@ -16,7 +16,7 @@ const Cart = ({ navigation }) => {
       delete newCart[courseId];
       return newCart;
     });
-    ToastAndroid.show("Item removed from cart!", ToastAndroid.SHORT);
+    ToastAndroid.show('Item removed from cart!', ToastAndroid.SHORT);
   };
 
   const cartItems = Object.entries(cart).map(([courseId, details]) => ({
@@ -26,14 +26,14 @@ const Cart = ({ navigation }) => {
     price: details.price,
   }));
 
-  if (cartItems.length === 0) {
+  if (cartItems?.length === 0) {
     return (
       <View style={styles.container}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
           <Icon name="arrow-back" size={24} color="black" />
         </TouchableOpacity>
-        <Text style={styles.heading}>Cart</Text>
-        <Text style={styles.emptyCart}>Your cart is empty</Text>
+        <Text style={styles.heading}>{languageData['cart'][language]}</Text>
+        <Text style={styles.emptyCart}>{languageData['cart_empty'][language]}</Text>
       </View>
     );
   }
@@ -43,7 +43,7 @@ const Cart = ({ navigation }) => {
       <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
         <Icon name="arrow-back" size={24} color="black" />
       </TouchableOpacity>
-      <Text style={styles.heading}>Cart</Text>
+      <Text style={styles.heading}>{languageData['cart'][language]}</Text>
       <FlatList
         data={cartItems}
         keyExtractor={(item) => item.id.toString()}
@@ -53,10 +53,10 @@ const Cart = ({ navigation }) => {
               styles.card,
               { backgroundColor: index % 2 === 0 ? "#f0f0f0" : "#d9e6f2" }
           ]}>
-            <Image source={item.image ? { uri: BASE_URL + item.image } : require('../assets/dummy-course.jpg')} style={styles.courseImage} />
+            <Image source={item.image ? { uri: item.image } : require('../assets/dummy-course.jpg')} style={styles.courseImage} />
             <View style={styles.info}>
-              <Text style={styles.title}>{item.title.length > 40 ? item.title.substring(0, 40) + "..." : item.title}</Text> 
-              <Text style={styles.price}>Price: ${item.price}</Text>
+              <Text style={styles.title}>{item?.title?.length > 40 ? item.title.substring(0, 40) + "..." : item.title}</Text> 
+              <Text style={styles.price}>د.ع {item.price ? item.price : 0}</Text>
               <View style={styles.cartActions}>
                 <TouchableOpacity style={styles.removeButton} onPress={() => removeItem(item.id)}>
                   <Icon name="trash" size={20} color="white" />
@@ -67,7 +67,7 @@ const Cart = ({ navigation }) => {
         )}
       />
       <TouchableOpacity style={styles.checkoutButton} onPress={() => navigation.navigate("Checkout")}>
-        <Text style={styles.checkoutText}>Proceed to Checkout</Text>
+        <Text style={styles.checkoutText}>{languageData['process2checkout'][language]}</Text>
       </TouchableOpacity>
     </View>
   );
@@ -136,11 +136,13 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#27ae60",
     marginVertical: 5,
+    textAlign: 'right',
   },
   cartActions: {
     flexDirection: "row",
     alignItems: "center",
     marginTop: 8,
+    justifyContent: 'flex-end'
   },
   removeButton: {
     backgroundColor: "#ff4757",

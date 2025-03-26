@@ -1,27 +1,22 @@
 import React, { useEffect, useState, useContext } from "react";
 import { View, Text, FlatList, Image, TouchableOpacity, ActivityIndicator, StyleSheet, ToastAndroid, RefreshControl } from "react-native";
-import { useNavigation } from "@react-navigation/native";
-import { teachers as fetchTeachers } from "../ApiActions";
+import { grades as fetchGrades } from "../ApiActions";
 import Icon from "react-native-vector-icons/Ionicons";
 import { MainContext } from "../MyContext";
 import { Picker } from "@react-native-picker/picker";
 
 
-const Teachers = ({ route }) => {
-    const { gradeId } = route.params;
-    const [teachers, setTeachers] = useState([]);
+const Grades = ({ navigation }) => {
+    const [grades, setGrades] = useState([]);
     const [loading, setLoading] = useState(true);
-    const navigation = useNavigation();
     const { cart, languageData, language, languages, setLanguage } = useContext(MainContext);
 
-    const getTeachers = async () => {
+    const getGrades = async () => {
         try {
             setLoading(true);
-
-            const result = await fetchTeachers(gradeId);
-
+            const result = await fetchGrades();
             if (result[0] === 200) {
-                setTeachers(result[1].data);
+                setGrades(result[1]?.student_specialities);
             } else {
                 ToastAndroid.show("Something went wrong!", ToastAndroid.SHORT);
             }
@@ -29,11 +24,11 @@ const Teachers = ({ route }) => {
             ToastAndroid.show("Something went wrong!", ToastAndroid.SHORT);
         } finally {
             setLoading(false);
-        }
+        };
     };
 
     useEffect(() => {
-        getTeachers();
+        getGrades();
     }, []);
 
     if (loading) {
@@ -51,7 +46,7 @@ const Teachers = ({ route }) => {
                     <Icon name="arrow-back" size={24} color="black" />
                 </TouchableOpacity>
                 <View style={styles.headerTitle}>
-                    <Text style={styles.heading}>{languageData["teachers"][language]}</Text>
+                    <Text style={styles.heading}>{languageData["grades"][language]}</Text>
                 </View>
                 <View style={styles.pickerContainer}>
                     <Picker
@@ -74,27 +69,25 @@ const Teachers = ({ route }) => {
                 </TouchableOpacity>
             </View>
 
-            {teachers?.length === 0 && (
+            {grades?.length === 0 && (
                 <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-                    <Text>{languageData["no_teachers"][language]}</Text>
+                    <Text>{languageData["no_grades"][language]}</Text>
                 </View>
             )}
 
             <FlatList
-                data={teachers}
-                keyExtractor={(item, index) => `${item?.id}-${index}`}
+                data={grades}
+                keyExtractor={(item, index) => `${item.id}-${index}`}
                 renderItem={({ item, index }) => (
                     <TouchableOpacity
                         style={[
                             styles.card,
                             { backgroundColor: index % 2 === 0 ? "#f0f0f0" : "#d9e6f2" }
                         ]}
-                        onPress={() => navigation.navigate("Courses", { teacher: item?.id })}
+                        onPress={() => navigation.navigate("Teachers", { gradeId: item.id })}
                     >
-                        <Image source={item?.teacher?.avatar ? { uri: item?.teacher?.avatar } : require("../assets/dummy-profile.jpg")} style={styles.profilePic} />
                         <View style={styles.info}>
-                            <Text style={styles.name}>{item?.teacher?.name}</Text>
-                            <Text style={styles.speciality}>{item?.teacher?.speciality}</Text>
+                            <Text style={styles.name}>{item.name}</Text>
                         </View>
                     </TouchableOpacity>
                 )}
@@ -209,4 +202,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default Teachers;
+export default Grades;

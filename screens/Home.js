@@ -12,7 +12,7 @@ const Home = () => {
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
     const navigation = useNavigation();
-    const { cart, languages, language, setLanguage } = useContext(MainContext);
+    const { cart, languages, language, setLanguage, languageData } = useContext(MainContext);
 
     const getSubjects = async () => {
         try {
@@ -50,7 +50,7 @@ const Home = () => {
     return (
         <View style={styles.container}>
             <View style={styles.header}>
-                <Text style={styles.heading}>Subjects</Text>
+                <Text style={styles.heading}>{languageData['home'][language]}</Text>
                 <View style={styles.pickerContainer}>
                     <Picker
                         selectedValue={language}
@@ -64,18 +64,18 @@ const Home = () => {
                 </View>
                 <TouchableOpacity onPress={() => navigation.navigate("Cart")} style={styles.cartButton}>
                     <Icon name="cart" size={28} color="black" />
-                    {Object.keys(cart).length > 0 && (
+                    {Object.keys(cart)?.length > 0 && (
                         <View style={styles.cartBadge}>
-                            <Text style={styles.cartBadgeText}>{Object.keys(cart).length}</Text>
+                            <Text style={styles.cartBadgeText}>{Object.keys(cart)?.length}</Text>
                         </View>
                     )}
                 </TouchableOpacity>
             </View>
 
             {
-                subjects.length === 0 && (
+                subjects?.length === 0 && (
                     <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-                        <Text>No subjects available</Text>
+                        <Text>{languageData['no_subjects'][language]}</Text>
                     </View>
                 )
             }

@@ -1,53 +1,47 @@
 import React, { useEffect, useState, useContext } from "react";
 import { View, Text, FlatList, Image, TouchableOpacity, ActivityIndicator, StyleSheet, ToastAndroid, RefreshControl } from "react-native";
-import { courses as fetchCourses, BASE_URL } from "../ApiActions";
+import { courses as fetchCourses, courseSpecific } from "../ApiActions";
 import Icon from "react-native-vector-icons/Ionicons";
 import { MainContext } from "../MyContext";
 
 const Courses = ({ navigation, route }) => {
   const { teacher } = route.params;
-  const { cart, setCart, language } = useContext(MainContext);
+  const { cart, setCart, language, languageData } = useContext(MainContext);
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
 
   const getCourses = async () => {
     try {
+      setLoading(true);
       const result = await fetchCourses(teacher);
       if (result[0] === 200) {
-        setCourses(result[1]);
+        setCourses(result[1]?.data?.sections)
       } else {
-        ToastAndroid.show("Something went wrong!", ToastAndroid.SHORT);
+        ToastAndroid.show('Something went wrong!', ToastAndroid.SHORT);
       }
     } catch (error) {
-      ToastAndroid.show("Something went wrong!", ToastAndroid.SHORT);
+      ToastAndroid.show('Something went wrong!', ToastAndroid.SHORT);
     } finally {
       setLoading(false);
-      setRefreshing(false);
     }
   };
 
   useEffect(() => {
     if (!teacher) {
-      ToastAndroid.show("Something went wrong!", ToastAndroid.SHORT);
+      ToastAndroid.show('Something went wrong!', ToastAndroid.SHORT);
       navigation.goBack();
     } else {
       getCourses();
     }
   }, []);
 
-  const onRefresh = () => {
-    setRefreshing(true);
-    getCourses();
-  };
-
   const addToCart = (course) => {
     setCart((prevCart) => ({
       ...prevCart,
-      [course.id]: {
-        title: course.title,
-        image: course.profile_pic,
-        price: parseFloat(course.price),
+      [course?.id]: {
+        title: course?.name,
+        image: course?.image,
+        price: parseFloat(course?.price ? course?.price : 0),
       },
     }));
   };
@@ -74,42 +68,41 @@ const Courses = ({ navigation, route }) => {
         <Icon name="arrow-back" size={24} color="black" />
       </TouchableOpacity>
 
-      <Text style={styles.heading}>Courses</Text>
+      <Text style={styles.heading}>{languageData['courses'][language]}</Text>
 
-      {courses.length === 0 ? (
-        <Text style={styles.noCourses}>No courses available</Text>
+      {courses?.length === 0 ? (
+        <Text style={styles.noCourses}>{languageData['no_courses'][language]}</Text>
       ) : (
         <FlatList
           data={courses}
-          keyExtractor={(item) => item.id.toString()}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={["#3498db"]} />}
+          keyExtractor={(item) => item?.id.toString()}
           renderItem={({ item, index }) => (
             <View 
               style={[
                 styles.card,
                 { backgroundColor: index % 2 === 0 ? "#f0f0f0" : "#d9e6f2" }
             ]}>
-              <Image source={item.profile_pic ? { uri: BASE_URL + item.profile_pic } : require('../assets/dummy-course.jpg')} style={styles.courseImage} />
+              <Image source={item?.image ? { uri:item?.image } : require('../assets/dummy-course.jpg')} style={styles.courseImage} />
               <View style={styles.info}>
-                <Text style={styles.title}>{item.title.length > 40 ? item.title.substring(0, 40) + "..." : item.title}</Text>
-                <Text style={styles.description}>{item.description}</Text>
-                <Text style={styles.price}>${item.price}</Text>
+                <Text style={styles.title}>{item?.name?.length > 40 ? item?.name.substring(0, 40) + "..." : item?.name}</Text>
+                <Text style={styles.description}>{item?.description}</Text>
+                <Text style={styles.price}>د.ع {item?.price ? item?.price : 0}</Text>
 
-                {cart[item.id] ? (
+                {cart[item?.id] ? (
                   <View style={styles.cartActions}>
-                    <TouchableOpacity onPress={() => removeFromCart(item.id)} style={styles.cartButton}>
+                    <TouchableOpacity onPress={() => removeFromCart(item?.id)} style={styles.cartButton}>
                       <Icon name="trash" size={20} color="white" />
                     </TouchableOpacity>
                     <TouchableOpacity
                       style={styles.goToCartButton}
                       onPress={() => navigation.navigate("Cart")}
                     >
-                      <Text style={styles.goToCartText}>Go to Cart</Text>
+                      <Text style={styles.goToCartText}>{languageData['go2cart'][language]}</Text>
                     </TouchableOpacity>
                   </View>
                 ) : (
                   <TouchableOpacity style={styles.addToCartButton} onPress={() => addToCart(item)}>
-                    <Text style={styles.addToCartText}>Add to Cart</Text>
+                    <Text style={styles.addToCartText}>{languageData['add2cart'][language]}</Text>
                   </TouchableOpacity>
                 )}
               </View>
@@ -194,6 +187,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
     color: "#27ae60",
+    textAlign: 'right',
   },
   addToCartButton: {
     backgroundColor: "#3498db",
