@@ -9,6 +9,7 @@ import moment from "moment";
 import SunmiPrinter from "@heasy/react-native-sunmi-printer";
 import Icon from "react-native-vector-icons/Ionicons";
 import { MainContext } from "../MyContext";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 
 const ReportScreen = ({ navigation }) => {
@@ -78,6 +79,8 @@ const ReportScreen = ({ navigation }) => {
             }
             else if (result[0] === 401){
                 ToastAndroid.show('Unauthorized', ToastAndroid.SHORT);
+                await AsyncStorage.removeItem('token');
+                await AsyncStorage.removeItem('device_id');
                 navigation.navigate('Login');
             }
             else {

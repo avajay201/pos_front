@@ -32,9 +32,6 @@ const Checkout = ({ navigation }) => {
 
     const printReceipt = async (orderData) => {
         try {
-            // const assetSource = Image.resolveAssetSource(require("../assets/logo.png"));
-            // const base64Image = await ImgToBase64.getBase64String(assetSource.uri);
-
             SunmiPrinter.printerInit();
 
             SunmiPrinter.setAlignment(1);
@@ -50,9 +47,6 @@ const Checkout = ({ navigation }) => {
             SunmiPrinter.printerText(`Ordered At: ${orderData.ordered_at}\n\n`);
 
             SunmiPrinter.printerText("Courses:\n");
-            // orderData.courses.forEach((course, index) => {
-            //     SunmiPrinter.printerText(`${index + 1}. ${course}\n`);
-            // });
 
             orderData.courses.map((course, index) => {
                 const courseCode = Object.keys(course)[0];
@@ -109,6 +103,8 @@ const Checkout = ({ navigation }) => {
             }
             else if (result[0] === 401){
                 ToastAndroid.show('Unauthorized', ToastAndroid.SHORT);
+                await AsyncStorage.removeItem('token');
+                await AsyncStorage.removeItem('device_id');
                 navigation.navigate('Login');
             }
             else {
