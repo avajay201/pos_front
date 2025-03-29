@@ -1,11 +1,11 @@
 import React, { useEffect, useState, useContext } from "react";
 import { View, Text, FlatList, Image, TouchableOpacity, ActivityIndicator, StyleSheet, ToastAndroid, RefreshControl } from "react-native";
-import { courses as fetchCourses, courseSpecific } from "../ApiActions";
+import { courses as fetchCourses } from "../ApiActions";
 import Icon from "react-native-vector-icons/Ionicons";
 import { MainContext } from "../MyContext";
 
 const Courses = ({ navigation, route }) => {
-  const { teacher } = route.params;
+  const { id } = route.params;
   const { cart, setCart, language, languageData } = useContext(MainContext);
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -13,7 +13,7 @@ const Courses = ({ navigation, route }) => {
   const getCourses = async () => {
     try {
       setLoading(true);
-      const result = await fetchCourses(teacher);
+      const result = await fetchCourses(id);
       if (result[0] === 200) {
         setCourses(result[1]?.data?.sections)
       } else {
@@ -27,12 +27,7 @@ const Courses = ({ navigation, route }) => {
   };
 
   useEffect(() => {
-    if (!teacher) {
-      ToastAndroid.show('Something went wrong!', ToastAndroid.SHORT);
-      navigation.goBack();
-    } else {
-      getCourses();
-    }
+    getCourses();
   }, []);
 
   const addToCart = (course) => {

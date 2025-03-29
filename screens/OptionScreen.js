@@ -1,44 +1,85 @@
-import React, { useContext } from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import React, { useContext, useState } from "react";
+import { View, Text, TouchableOpacity, StyleSheet, Modal } from "react-native";
 import { MainContext } from "../MyContext";
 import { Picker } from "@react-native-picker/picker";
 
 const OptionScreen = ({ navigation }) => {
-    const { language, languages, setLanguage } = useContext(MainContext);
+  const { language, languages, setLanguage, languageData } = useContext(MainContext);
+  const [modalVisible, setModalVisible] = useState(false);
 
-    return (
-        <View style={styles.container}>
-            <View style={styles.pickerContainer}>
-                <Picker
-                    selectedValue={language}
-                    style={styles.picker}
-                    onValueChange={(itemValue) => setLanguage(itemValue)}
-                >
-                    {languages.map((lang, index) => (
-                        <Picker.Item key={index} label={lang} value={lang} />
-                    ))}
-                </Picker>
-            </View>
+  return (
+    <View style={styles.container}>
+      <View style={styles.pickerContainer}>
+        <Picker
+          selectedValue={language}
+          style={styles.picker}
+          onValueChange={(itemValue) => setLanguage(itemValue)}
+        >
+          {languages.map((lang, index) => (
+            <Picker.Item key={index} label={lang} value={lang} />
+          ))}
+        </Picker>
+      </View>
 
-            <TouchableOpacity 
-                style={[styles.button, styles.coursesButton]} 
-                onPress={() => navigation.navigate("Grades")}
+      <TouchableOpacity
+        style={[styles.button, styles.coursesButton]}
+        onPress={() => setModalVisible(true)}
+      >
+        <Text style={styles.buttonText}>
+          {language === "English" ? "Courses" : "الدورات"}
+        </Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={[styles.button, styles.reportsButton]}
+        onPress={() => navigation.navigate("ReportScreen")}
+      >
+        <Text style={styles.buttonText}>
+          {language === "English" ? "Reports" : "التقارير"}
+        </Text>
+      </TouchableOpacity>
+
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>{languageData['course_type_selction'][language]}</Text>
+
+            <TouchableOpacity
+              style={[styles.modalButton, styles.gradeButton]}
+              onPress={() => {
+                setModalVisible(false);
+                navigation.navigate("Grades");
+              }}
             >
-                <Text style={styles.buttonText}>
-                    {language === "English" ? "Courses" : "الدورات"}
-                </Text>
+              <Text style={styles.modalButtonText}>{languageData['course_by_grade'][language]}</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity 
-                style={[styles.button, styles.reportsButton]} 
-                onPress={() => navigation.navigate("ReportScreen")}
+            <TouchableOpacity
+              style={[styles.modalButton, styles.teacherButton]}
+              onPress={() => {
+                setModalVisible(false);
+                navigation.navigate("Teachers");
+              }}
             >
-                <Text style={styles.buttonText}>
-                    {language === "English" ? "Reports" : "التقارير"}
-                </Text>
+              <Text style={styles.modalButtonText}>{languageData['course_by_teacher'][language]}</Text>
             </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => setModalVisible(false)}
+            >
+              <Text style={styles.closeButtonText}>{languageData['course_type_selction_close'][language]}</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-    );
+      </Modal>
+    </View>
+  );
 };
 
 const styles = StyleSheet.create({
@@ -86,6 +127,50 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 18,
     fontWeight: "bold",
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  modalContent: {
+    width: "80%",
+    backgroundColor: "#fff",
+    padding: 20,
+    borderRadius: 10,
+    alignItems: "center",
+    elevation: 5,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 15,
+  },
+  modalButton: {
+    width: "100%",
+    padding: 12,
+    borderRadius: 8,
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  gradeButton: {
+    backgroundColor: "#007bff",
+  },
+  teacherButton: {
+    backgroundColor: "#17a2b8",
+  },
+  modalButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  closeButton: {
+    marginTop: 10,
+  },
+  closeButtonText: {
+    fontSize: 16,
+    color: "#333",
   },
 });
 

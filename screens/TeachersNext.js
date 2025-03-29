@@ -1,43 +1,40 @@
 import React, { useEffect, useState, useContext } from "react";
-import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, StyleSheet, ToastAndroid, RefreshControl } from "react-native";
+import { View, Text, FlatList, Image, TouchableOpacity, ActivityIndicator, StyleSheet, ToastAndroid, RefreshControl } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { subjects as fetchSubjects } from "../ApiActions";
+import { teacherCourses } from "../ApiActions";
 import Icon from "react-native-vector-icons/Ionicons";
 import { MainContext } from "../MyContext";
 import { Picker } from "@react-native-picker/picker";
 
 
-const Home = () => {
-    const [subjects, setSubjects] = useState([]);
+const TeachersNext = ({ route }) => {
+    const { teacherId } = route.params;
+    const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [refreshing, setRefreshing] = useState(false);
     const navigation = useNavigation();
-    const { cart, languages, language, setLanguage, languageData } = useContext(MainContext);
+    const { cart, languageData, language, languages, setLanguage } = useContext(MainContext);
 
-    const getSubjects = async () => {
+    const getTeachers = async () => {
         try {
-            const result = await fetchSubjects();
+            setLoading(true);
+
+            const result = await teacherCourses(teacherId);
+
             if (result[0] === 200) {
-                setSubjects(result[1]);
+                setData(result[1]?.data?.courses);
             } else {
-                ToastAndroid.show('Something went wrong!', ToastAndroid.SHORT);
+                ToastAndroid.show("Something went wrong!", ToastAndroid.SHORT);
             }
         } catch (error) {
-            ToastAndroid.show('Error fetching subjects!', ToastAndroid.SHORT);
+            ToastAndroid.show("Something went wrong!", ToastAndroid.SHORT);
         } finally {
             setLoading(false);
-            setRefreshing(false);
         }
     };
 
     useEffect(() => {
-        getSubjects();
+        getTeachers();
     }, []);
-
-    const onRefresh = () => {
-        setRefreshing(true);
-        getSubjects();
-    };
 
     if (loading) {
         return (
@@ -45,12 +42,14 @@ const Home = () => {
                 <ActivityIndicator size="large" color="#3498db" />
             </View>
         );
-    }
+    };
 
     return (
         <View style={styles.container}>
             <View style={styles.header}>
-                <Text style={styles.heading}>{languageData['home'][language]}</Text>
+                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+                    <Icon name="arrow-back" size={24} color="black" />
+                </TouchableOpacity>
                 <View style={styles.pickerContainer}>
                     <Picker
                         selectedValue={language}
@@ -72,31 +71,30 @@ const Home = () => {
                 </TouchableOpacity>
             </View>
 
-            {
-                subjects?.length === 0 && (
-                    <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-                        <Text>{languageData['no_subjects'][language]}</Text>
-                    </View>
-                )
-            }
+            {data?.length === 0 && (
+                <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+                    <Text>{languageData["no_data"][language]}</Text>
+                </View>
+            )}
 
             <FlatList
-                data={subjects}
-                keyExtractor={(item) => item.id.toString()}
+                data={data}
+                keyExtractor={(item, index) => `${item?.id}-${index}`}
                 renderItem={({ item, index }) => (
                     <TouchableOpacity
                         style={[
                             styles.card,
                             { backgroundColor: index % 2 === 0 ? "#f0f0f0" : "#d9e6f2" }
                         ]}
-                        onPress={() => navigation.navigate("Teachers", { s_id: item.id })}
+                        onPress={() => navigation.navigate("Courses", { id: item?.id })}
                     >
-                        <Text style={{fontSize: 18, fontWeight: 'bold'}}>{item.name}</Text>
+                        <Image source={item?.image ? { uri: item?.image } : require("../assets/dummy-course.jpg")} style={styles.profilePic} />
+                        <View style={styles.info}>
+                            <Text style={styles.name}>{item?.name}</Text>
+                            <Text style={styles.speciality}>{item?.description}</Text>
+                        </View>
                     </TouchableOpacity>
                 )}
-                refreshControl={
-                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={["#3498db"]} />
-                }
             />
         </View>
     );
@@ -116,14 +114,18 @@ const styles = StyleSheet.create({
     },
     header: {
         flexDirection: "row",
-        justifyContent: "space-between",
         alignItems: "center",
-        marginBottom: 10,
+        justifyContent: "space-between",
         paddingHorizontal: 10,
+        marginBottom: 10,
+    },
+    headerTitle: {
+        // flex: 1,
+        // alignItems: "center",
     },
     heading: {
-        fontWeight: 'bold',
-        fontSize: 30,
+        fontWeight: "bold",
+        fontSize: 26,
     },
     pickerContainer: {
         display: 'flex',
@@ -141,6 +143,15 @@ const styles = StyleSheet.create({
         height: 40,
         width: "100%",
         color: "black",
+    },
+    backButton: {
+        padding: 8,
+        borderRadius: 20,
+        backgroundColor: "#fff",
+        elevation: 3,
+        shadowColor: "#000",
+        shadowOpacity: 0.1,
+        shadowRadius: 5,
     },
     cartButton: {
         position: "relative",
@@ -175,6 +186,24 @@ const styles = StyleSheet.create({
         alignItems: "center",
         gap: 20,
     },
+    profilePic: {
+        width: 60,
+        height: 60,
+        borderRadius: 30,
+        marginRight: 15,
+    },
+    info: {
+        flex: 1,
+    },
+    name: {
+        fontSize: 18,
+        fontWeight: "bold",
+        color: "#333",
+    },
+    speciality: {
+        fontSize: 14,
+        color: "#555",
+    }
 });
 
-export default Home;
+export default TeachersNext;

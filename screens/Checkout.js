@@ -99,7 +99,7 @@ const Checkout = ({ navigation }) => {
                 ToastAndroid.show('Order created Successful.', ToastAndroid.SHORT);
                 await printReceipt(result[1]);
                 setLoading(false);
-                navigation.navigate('Grades');
+                navigation.navigate('OptionScreen');
             }
             else if (result[0] === 401){
                 ToastAndroid.show('Unauthorized', ToastAndroid.SHORT);

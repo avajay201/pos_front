@@ -99,6 +99,26 @@ export const MainProvider = ({ children }) => {
             English: 'Your cart is empty',
             العربية: 'سلة التسوق الخاصة بك فارغة',
         },
+        no_data: {
+            English: 'No data available',
+            العربية: 'لا توجد بيانات متاحة',
+        },
+        course_type_selction: {
+            English: 'Select Course Type',
+            العربية: 'حدد نوع الدورة التدريبية',
+        },
+        course_type_selction_close: {
+            English: 'Close',
+            العربية: 'يغلق',
+        },
+        course_by_grade: {
+            English: 'Courses by Grades',
+            العربية: 'الدورات حسب الدرجات',
+        },
+        course_by_teacher: {
+            English: 'Courses by Teachers',
+            العربية: 'دورات من قبل المعلمين',
+        },
     };
 
     return (

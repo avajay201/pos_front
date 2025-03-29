@@ -1,24 +1,27 @@
 import React, { useEffect, useState, useContext } from "react";
 import { View, Text, FlatList, Image, TouchableOpacity, ActivityIndicator, StyleSheet, ToastAndroid, RefreshControl } from "react-native";
-import { teachers as fetchTeachers } from "../ApiActions";
+import { useNavigation } from "@react-navigation/native";
+import { gradeCourses } from "../ApiActions";
 import Icon from "react-native-vector-icons/Ionicons";
 import { MainContext } from "../MyContext";
 import { Picker } from "@react-native-picker/picker";
 
 
-const Teachers = ({ navigation }) => {
-    const [teachers, setTeachers] = useState([]);
+const GradesNext = ({ route }) => {
+    const { gradeId } = route.params;
+    const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
+    const navigation = useNavigation();
     const { cart, languageData, language, languages, setLanguage } = useContext(MainContext);
 
     const getTeachers = async () => {
         try {
             setLoading(true);
 
-            const result = await fetchTeachers();
+            const result = await gradeCourses(gradeId);
 
             if (result[0] === 200) {
-                setTeachers(result[1].data);
+                setData(result[1].data);
             } else {
                 ToastAndroid.show("Something went wrong!", ToastAndroid.SHORT);
             }
@@ -47,9 +50,6 @@ const Teachers = ({ navigation }) => {
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
                     <Icon name="arrow-back" size={24} color="black" />
                 </TouchableOpacity>
-                <View style={styles.headerTitle}>
-                    <Text style={styles.heading}>{languageData["teachers"][language]}</Text>
-                </View>
                 <View style={styles.pickerContainer}>
                     <Picker
                         selectedValue={language}
@@ -71,14 +71,14 @@ const Teachers = ({ navigation }) => {
                 </TouchableOpacity>
             </View>
 
-            {teachers?.length === 0 && (
+            {data?.length === 0 && (
                 <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-                    <Text>{languageData["no_teachers"][language]}</Text>
+                    <Text>{languageData["no_data"][language]}</Text>
                 </View>
             )}
 
             <FlatList
-                data={teachers}
+                data={data}
                 keyExtractor={(item, index) => `${item?.id}-${index}`}
                 renderItem={({ item, index }) => (
                     <TouchableOpacity
@@ -86,12 +86,12 @@ const Teachers = ({ navigation }) => {
                             styles.card,
                             { backgroundColor: index % 2 === 0 ? "#f0f0f0" : "#d9e6f2" }
                         ]}
-                        onPress={() => navigation.navigate("TeachersNext", { teacherId: item?.id })}
+                        onPress={() => navigation.navigate("Courses", { id: item?.id })}
                     >
-                        <Image source={item?.avatar ? { uri: item?.avatar } : require("../assets/dummy-profile.jpg")} style={styles.profilePic} />
+                        <Image source={item?.image ? { uri: item?.image } : require("../assets/dummy-course.jpg")} style={styles.profilePic} />
                         <View style={styles.info}>
                             <Text style={styles.name}>{item?.name}</Text>
-                            <Text style={styles.speciality}>{item?.speciality}</Text>
+                            <Text style={styles.speciality}>{item?.description}</Text>
                         </View>
                     </TouchableOpacity>
                 )}
@@ -206,4 +206,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default Teachers;
+export default GradesNext;

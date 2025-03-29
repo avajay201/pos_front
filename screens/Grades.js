@@ -84,7 +84,7 @@ const Grades = ({ navigation }) => {
                             styles.card,
                             { backgroundColor: index % 2 === 0 ? "#f0f0f0" : "#d9e6f2" }
                         ]}
-                        onPress={() => navigation.navigate("Teachers", { gradeId: item.id })}
+                        onPress={() => navigation.navigate("GradesNext", { gradeId: item.id })}
                     >
                         <View style={styles.info}>
                             <Text style={styles.name}>{item.name}</Text>

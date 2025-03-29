@@ -10,12 +10,14 @@ const fetchToken = async ()=>{
 };
 
 const ENDPOINTS = {
-    teachers: BASE_URL + '/courses/',
+    teachers: BASE_URL + '/teachers/',
+    teacherCourses: BASE_URL + '/api/iq/pos/v1/teacher/profile/',
     order: BASE_URL1 + '/api/order/',
     orders: BASE_URL1 + '/api/orders/',
     login: BASE_URL + '/api/iq/pos/v1/login',
     grades: BASE_URL + '/app',
     myLogin: BASE_URL1 + '/api/login/',
+    courses: BASE_URL + '/courses/',
 };
 
 export const merchantLogin = async (data) => {
@@ -36,9 +38,18 @@ export const myLogin = async (data) => {
     };
 };
 
-export const teachers = async (gradeId) => {
+export const teachers = async () => {
     try {
-        const response = await axios.get(`${ENDPOINTS.teachers}?grade=${gradeId}`);
+        const response = await axios.get(ENDPOINTS.teachers);
+        return [response.status, response.data];
+    } catch (error) {
+        return error.response.status;
+    };
+};
+
+export const teacherCourses = async (teacherId) => {
+    try {
+        const response = await axios.get(ENDPOINTS.teacherCourses + teacherId);
         return [response.status, response.data];
     } catch (error) {
         return error.response.status;
@@ -48,6 +59,15 @@ export const teachers = async (gradeId) => {
 export const grades = async () => {
     try {
         const response = await axios.get(ENDPOINTS.grades);
+        return [response.status, response.data];
+    } catch (error) {
+        return error.response.status;
+    };
+};
+
+export const gradeCourses = async (gradeId) => {
+    try {
+        const response = await axios.get(`${ENDPOINTS.courses}?grade=${gradeId}`);
         return [response.status, response.data];
     } catch (error) {
         return error.response.status;
@@ -70,15 +90,6 @@ export const orders = async (data) => {
 };
 
 export const courses = async (id) => {
-    try {
-        const response = await axios.get(ENDPOINTS.teachers + id);
-        return [response.status, response.data];
-    } catch (error) {
-        return error.response.status;
-    };
-};
-
-export const courseSpecific = async (id) => {
     try {
         const response = await axios.get(ENDPOINTS.courses + id);
         return [response.status, response.data];

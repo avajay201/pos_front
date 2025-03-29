@@ -12,6 +12,8 @@ import SplashScreen from './screens/SplashScreen';
 import OptionScreen from './screens/OptionScreen';
 import ReportScreen from './screens/ReportScreen';
 import Grades from './screens/Grades';
+import GradesNext from './screens/GradesNext';
+import TeachersNext from './screens/TeachersNext';
 
 
 LogBox.ignoreAllLogs();
@@ -27,6 +29,8 @@ export default App = () => {
           <Stack.Screen name="LoginScreen" component={LoginScreen} options={{ headerShown: false }} />
           <Stack.Screen name="OptionScreen" component={OptionScreen} options={{ headerShown: false }} />
           <Stack.Screen name="Teachers" component={Teachers} options={{ headerShown: false }} />
+          <Stack.Screen name="TeachersNext" component={TeachersNext} options={{ headerShown: false }} />
+          <Stack.Screen name="GradesNext" component={GradesNext} options={{ headerShown: false }} />
           <Stack.Screen name="Grades" component={Grades} options={{ headerShown: false }} />
           <Stack.Screen name="ReportScreen" component={ReportScreen} options={{ headerShown: false }} />
           <Stack.Screen name="Courses" component={Courses} options={{ headerShown: false }} />
