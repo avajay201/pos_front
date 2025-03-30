@@ -68,7 +68,7 @@ const Checkout = ({ navigation }) => {
             SunmiPrinter.printerText("************************\n");
             SunmiPrinter.setAlignment(1);
             SunmiPrinter.printerText("\n==== THANK YOU! ====\n");
-            SunmiPrinter.printerText("\n\n\n\n\n");
+            SunmiPrinter.printerText("\n\n\n\n\n\n\n");
 
             ToastAndroid.show('Receipt Printed', ToastAndroid.SHORT);
         } catch (error) {
@@ -97,6 +97,7 @@ const Checkout = ({ navigation }) => {
                 setAddress("");
                 setWhatsappNumber("");
                 ToastAndroid.show('Order created Successful.', ToastAndroid.SHORT);
+                await printReceipt(result[1]);
                 await printReceipt(result[1]);
                 setLoading(false);
                 navigation.navigate('OptionScreen');

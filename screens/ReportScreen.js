@@ -22,14 +22,7 @@ const ReportScreen = ({ navigation }) => {
     const [isPrinting, setIsPrinting] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
-    const printReceipt = () => {
-        if (orders.length === 0) {
-            ToastAndroid.show("No orders available to print.", ToastAndroid.SHORT);
-            return;
-        }
-
-        setIsPrinting(true);
-
+    const startPrinting = async () => {
         try{
             SunmiPrinter.setAlignment(1);
             SunmiPrinter.printerText("\n==== ORDER RECEIPT ====\n");
@@ -53,12 +46,22 @@ const ReportScreen = ({ navigation }) => {
             SunmiPrinter.printerText("\n\n\n\n");
 
             ToastAndroid.show("Receipt Printed Successfully!", ToastAndroid.SHORT);
-            setIsPrinting(false);
         }
         catch(error){
             setIsPrinting(false);
             ToastAndroid.show("Failed to Print Receipt!", ToastAndroid.SHORT);
         };
+    }
+
+    const printReceipt = async () => {
+        if (orders.length === 0) {
+            ToastAndroid.show("No orders available to print.", ToastAndroid.SHORT);
+            return;
+        }
+        setIsPrinting(true);
+        await startPrinting();
+        await startPrinting();
+        setIsPrinting(false);
     };
 
     const fetchOrders = async () => {
