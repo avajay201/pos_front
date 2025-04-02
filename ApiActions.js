@@ -1,7 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
-export const BASE_URL1 = 'https://ajay-verma.in';
+// export const BASE_URL1 = 'https://ajay-verma.in';
+export const BASE_URL1 = 'http://192.168.1.42:8000';
 export const BASE_URL = 'https://api.iraqacademy.net';
 
 const fetchToken = async ()=>{

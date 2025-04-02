@@ -30,12 +30,14 @@ const Checkout = ({ navigation }) => {
         return true;
     };
 
-    const printReceipt = async (orderData) => {
+    const printReceipt = async (forWhome, orderData) => {
         try {
             SunmiPrinter.printerInit();
 
             SunmiPrinter.setAlignment(1);
             SunmiPrinter.printerText("***** RECEIPT *****\n");
+            SunmiPrinter.printerText("      Iraq Academy      \n");
+            SunmiPrinter.printerText(`${forWhome}\n`);
 
             // SunmiPrinter.printBitmapBase64Custom(base64Image, 384, 0);
 
@@ -97,8 +99,8 @@ const Checkout = ({ navigation }) => {
                 setAddress("");
                 setWhatsappNumber("");
                 ToastAndroid.show('Order created Successful.', ToastAndroid.SHORT);
-                await printReceipt(result[1]);
-                await printReceipt(result[1]);
+                await printReceipt('For Buyer', result[1]);
+                await printReceipt('For Merchant', result[1]);
                 setLoading(false);
                 navigation.navigate('OptionScreen');
             }

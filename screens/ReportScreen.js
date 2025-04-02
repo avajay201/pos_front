@@ -22,10 +22,12 @@ const ReportScreen = ({ navigation }) => {
     const [isPrinting, setIsPrinting] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
-    const startPrinting = async () => {
+    const startPrinting = async (forWhome) => {
         try{
             SunmiPrinter.setAlignment(1);
             SunmiPrinter.printerText("\n==== ORDER RECEIPT ====\n");
+            SunmiPrinter.printerText("      Iraq Academy      \n");
+            SunmiPrinter.printerText(`${forWhome}\n`);
 
             // Get current date and time
             const currentDateTime = moment().format("DD MMM YYYY, HH:mm");
@@ -59,8 +61,8 @@ const ReportScreen = ({ navigation }) => {
             return;
         }
         setIsPrinting(true);
-        await startPrinting();
-        await startPrinting();
+        await startPrinting('For Buyer');
+        await startPrinting('For Merchant');
         setIsPrinting(false);
     };
 
