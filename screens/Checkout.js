@@ -82,7 +82,10 @@ const Checkout = ({ navigation }) => {
         if (validateInputs()) {
             setLoading(true);
             const android_id = await AsyncStorage.getItem("android_id");
-            const cartItemsData = Object.entries(cart).map(([key, value]) => ({ [key]: value.title }));
+            const cartItemsData = Object.entries(cart).map(([key, value]) => {
+                const finalKey = value.coupon || key;
+                return { [finalKey]: value.title };
+            });
             const totalPrice = cartItems?.reduce((total, item) => total + item.price, 0).toFixed(2);
             const orderData = {
                 device: android_id,

@@ -28,7 +28,7 @@ const LoginScreen = ({ navigation }) => {
         password: password,
       });
 
-      if (response[0] === 200 || response[0] === 201) {
+      if (response[0] == 200 || response[0] == 201) {
         const deviceID = await DeviceInfo.getAndroidId();
         if (!deviceID){
           setLoading(false);
@@ -46,6 +46,7 @@ const LoginScreen = ({ navigation }) => {
         if (result[0] === 200) {
           await AsyncStorage.setItem('token', result[1].access);
           await AsyncStorage.setItem('device_id', deviceID);
+          await AsyncStorage.setItem('auth_code', response[1].data?.api_token);
           ToastAndroid.show('Login successful.', ToastAndroid.SHORT);
           navigation.replace('OptionScreen');
         }
@@ -53,8 +54,11 @@ const LoginScreen = ({ navigation }) => {
           ToastAndroid.show('Something went wrong.', ToastAndroid.SHORT);
         }
       }
-      else if(response[0] === 401){
+      else if(response[0] == 401){
         ToastAndroid.show('Invalid creadentials.', ToastAndroid.SHORT);
+      }
+      else if(response[0] == 422){
+        ToastAndroid.show(response[1].msg, ToastAndroid.LONG);
       }
       else{
         ToastAndroid.show('Something went wrong.', ToastAndroid.SHORT);

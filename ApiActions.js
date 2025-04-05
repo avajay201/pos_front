@@ -1,8 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
-// export const BASE_URL1 = 'https://ajay-verma.in';
-export const BASE_URL1 = 'http://192.168.1.42:8000';
+export const BASE_URL1 = 'https://pos.aalialfuratco.com';
 export const BASE_URL = 'https://api.iraqacademy.net';
 
 const fetchToken = async ()=>{
@@ -19,12 +18,13 @@ const ENDPOINTS = {
     grades: BASE_URL + '/app',
     myLogin: BASE_URL1 + '/api/login/',
     courses: BASE_URL + '/courses/',
+    couponCode: BASE_URL + '/api/iq/pos/v1/order-new-coupon-code',
 };
 
 export const merchantLogin = async (data) => {
     try {
         const response = await axios.post(ENDPOINTS.login, data);
-        return [response.status, response.data];
+        return [response.data?.status_code, response.data];
     } catch (error) {
         return error.response.status;
     };
@@ -110,5 +110,26 @@ export const createOrder = async (data) => {
         return [response.status, response.data];
     } catch (error) {
         return [error.response.status];
+    };
+};
+
+export const couponCode = async (id, navigation) => {
+    try {
+        const authCode = await AsyncStorage.getItem('auth_code');
+        if(!authCode) {
+            await AsyncStorage.removeItem('token');
+            await AsyncStorage.removeItem('device_id');
+            ToastAndroid.show('Please login again!', ToastAndroid.SHORT);
+            navigation.navigate('LoginScreen');
+            return;
+        };
+        const response = await axios.post(ENDPOINTS.couponCode, {"sectionID": id}, {
+            headers: {
+                Authorization: `Bearer ${authCode}`
+            }
+        });
+        return [response.status, response.data];
+    } catch (error) {
+        return error.response.status;
     };
 };

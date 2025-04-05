@@ -1,8 +1,9 @@
 import React, { useEffect, useState, useContext } from "react";
 import { View, Text, FlatList, Image, TouchableOpacity, ActivityIndicator, StyleSheet, ToastAndroid, RefreshControl } from "react-native";
-import { courses as fetchCourses } from "../ApiActions";
+import { courses as fetchCourses, couponCode } from "../ApiActions";
 import Icon from "react-native-vector-icons/Ionicons";
 import { MainContext } from "../MyContext";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Courses = ({ navigation, route }) => {
   const { id } = route.params;
@@ -26,19 +27,53 @@ const Courses = ({ navigation, route }) => {
     }
   };
 
+  const courseCouponCode = async (courseId) => {
+    try {
+      setLoading(true);
+      const result = await couponCode(courseId, navigation);
+      if (result[0] === 200) {
+        return result[1]?.data?.coupon_code;
+      } else {
+        ToastAndroid.show('Failed to fetch coupon code.', ToastAndroid.SHORT);
+      }
+    } catch (error) {
+      ToastAndroid.show('Failed to fetch coupon code.', ToastAndroid.SHORT);
+    }
+    finally {
+      setLoading(false);
+    };
+  };
+
   useEffect(() => {
     getCourses();
   }, []);
 
-  const addToCart = (course) => {
-    setCart((prevCart) => ({
-      ...prevCart,
-      [course?.id]: {
-        title: course?.name,
-        image: course?.image,
-        price: parseFloat(course?.price ? course?.price : 0),
-      },
-    }));
+  const addToCart = async (course) => {
+    let cpnCode;
+    if (course?.price && course?.price > 0) {
+      cpnCode = await courseCouponCode(course?.id);
+      if (cpnCode){
+        setCart((prevCart) => ({
+          ...prevCart,
+          [course?.id]: {
+            title: course?.name,
+            image: course?.image,
+            price: parseFloat(course?.price ? course?.price : 0),
+            coupon: cpnCode,
+          },
+        }));
+      };
+    }
+    else{
+      setCart((prevCart) => ({
+        ...prevCart,
+        [course?.id]: {
+          title: course?.name,
+          image: course?.image,
+          price: parseFloat(course?.price ? course?.price : 0),
+        },
+      }));
+    }
   };
 
   const removeFromCart = (courseId) => {
@@ -48,14 +83,6 @@ const Courses = ({ navigation, route }) => {
       return newCart;
     });
   };
-
-  if (loading) {
-    return (
-      <View style={styles.loaderContainer}>
-        <ActivityIndicator size="large" color="#3498db" />
-      </View>
-    );
-  }
 
   return (
     <View style={styles.container}>
@@ -104,6 +131,18 @@ const Courses = ({ navigation, route }) => {
             </View>
           )}
         />
+      )}
+      {loading && (
+        <View style={{
+          position: 'absolute',
+          top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: 'rgba(52, 152, 219, 0.2)',
+          justifyContent: 'center',
+          alignItems: 'center',
+          zIndex: 999,
+        }}>
+          <ActivityIndicator size="large" color="#3498db" />
+        </View>
       )}
     </View>
   );
